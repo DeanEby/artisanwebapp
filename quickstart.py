@@ -1,6 +1,7 @@
-import os.path
+import os
 import base64
 import email
+import re
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -33,14 +34,13 @@ def get_mime_message(service, user_id, msg_id):
   except Exception as error:
     print('An error occured: %s' % error)
 
-def get_attachments(service, user_id, msg_id, store_dir):
+def get_attachments(service, user_id, msg_id):
   try:
     message = service.users().messages().get(userId=user_id, id=msg_id).execute()
     for part in message['payload']['parts']:
       if(part['filename'] and part['body'] and part['body']['attachmentId']):
         attachment = service.users().messages().attachments().get(id=part['body']['attachmentId'], userId=user_id, messageId=msg_id).execute()
         file_data = base64.urlsafe_b64decode(attachment['data'].encode('utf-8'))
-        path = ''.join([store_dir, part['filename']])
         return file_data
   except Exception as error:
     print('An error occured: %s' % error)
@@ -78,9 +78,24 @@ def main():
 
   messages = get_messages(service, "me")
 
-  message1 = messages['messages'][0]['id']
-  print(get_attachments(service, "me", message1, ''))
+  # print all message attachments in inbox
+  message_list = []
+  for message in messages['messages']:
+    data = []
+    #print(get_attachments(service, "me", message['id']))
+    attachment = str(get_attachments(service, "me", message['id']))
+    attachment = re.sub(r"b'|'\"|\\n", '', attachment)
+    attachment = attachment.split(',')
+    #print(attachment[:26])
+    data.append(attachment[:26])
+    data.append(attachment[26:])
+    print(data)
+    message_list.append(data)
 
+  # message1 = messages['messages'][0]['id']
+  # print(get_attachments(service, "me", message1, ''))
+
+  #print(message_list)
 
 if __name__ == "__main__":
   main()
