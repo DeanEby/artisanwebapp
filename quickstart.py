@@ -2,6 +2,8 @@ import os
 import base64
 import email
 import re
+import csv
+import pandas as pd
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -78,24 +80,36 @@ def main():
 
   messages = get_messages(service, "me")
 
-  # print all message attachments in inbox
-  message_list = []
   for message in messages['messages']:
-    data = []
-    #print(get_attachments(service, "me", message['id']))
-    attachment = str(get_attachments(service, "me", message['id']))
-    attachment = re.sub(r"b'|'\"|\\n", '', attachment)
-    attachment = attachment.split(',')
-    #print(attachment[:26])
-    data.append(attachment[:26])
-    data.append(attachment[26:])
-    print(data)
-    message_list.append(data)
+    message_contents = get_mime_message(service, "me", message['id'])
+    print(message_contents)
+    break
 
-  # message1 = messages['messages'][0]['id']
-  # print(get_attachments(service, "me", message1, ''))
+  # count = 0
+  # message_list = []
+  # for message in messages['messages']:
+  #   data = []
+    
+    
+  #   #print(get_attachments(service, "me", message['id']))
+  #   attachment = str(get_attachments(service, "me", message['id']))
+  #   attachment = re.sub(r"b'|'\"|\\n", '', attachment)
+  #   attachment = attachment.split(',')
+  #   if count == 0:
+  #     message_list.append(attachment[:26])
 
-  #print(message_list)
+  #   message_list.append(attachment[26:])
+  #   #print(data)
+  #   count = count + 1
+  
+  # message_df = pd.DataFrame(message_list)
+  # message_df.columns = message_df.iloc[0]
+  # message_df.drop(0, inplace=True)
+  # #print(message_df.head())
+
+  # print(message_df.info())
+
+  #message_df.to_csv('email_storage/attachment.csv', index=False)
 
 if __name__ == "__main__":
   main()

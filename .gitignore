@@ -3,3 +3,6 @@ venv/
 __pycache__/
 secrets/
 email_storage/
+gmail_token.json
+*.csv
+*.json
