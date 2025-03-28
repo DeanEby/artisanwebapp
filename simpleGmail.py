@@ -1,5 +1,23 @@
 from simplegmail import Gmail
 import re
+import mysql.connector
+import json
+
+with open('secrets/mysql_credentials.json', 'r') as f:
+    mysql_credentials = json.load(f)
+
+
+mydb = mysql.connector.connect(
+    host=mysql_credentials['host'],
+    user=mysql_credentials['user'],
+    password=mysql_credentials['password'],
+    database=mysql_credentials['database']
+)
+
+def test_mysql_connection(mycursor):
+    mycursor.execute("SHOW TABLES")
+    for x in mycursor:
+        print(x)
 
 gmail = Gmail('secrets/credentials.json')
 
@@ -34,9 +52,10 @@ def getUnreadMessagesAsDict(gmail):
         
     return message_dict_list
     
-output = getUnreadMessagesAsDict(gmail)
+#output = getUnreadMessagesAsDict(gmail)
 
-print(output)
-
+#print(output)
+mycursor = mydb.cursor()
+test_mysql_connection(mycursor)
 
 
