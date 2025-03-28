@@ -14,12 +14,17 @@ mydb = mysql.connector.connect(
     database=mysql_credentials['database']
 )
 
+gmail = Gmail('secrets/credentials.json')
+
+
 def test_mysql_connection(mycursor):
+    # Test the connection to the database by reading out the tables
     mycursor.execute("SHOW TABLES")
     for x in mycursor:
         print(x)
 
-gmail = Gmail('secrets/credentials.json')
+def markMessageAsRead(message_id):
+    message_id.mark_as_read()
 
 def cleanMessageHTML(message):
     regex = re.compile('<.*?>')
@@ -39,6 +44,7 @@ def getUnreadMessagesAsDict(gmail):
         message_list = message_html.split('##SPLIT##')
         message_list = [line for line in message_list if line]
         all_messages_list.append(message_list)
+        markMessageAsRead(message)
 
     message_dict_list = []
     for message in all_messages_list:
@@ -52,10 +58,11 @@ def getUnreadMessagesAsDict(gmail):
         
     return message_dict_list
     
-#output = getUnreadMessagesAsDict(gmail)
+output = getUnreadMessagesAsDict(gmail)
 
-#print(output)
+print(output)
+
 mycursor = mydb.cursor()
-test_mysql_connection(mycursor)
+#test_mysql_connection(mycursor)
 
 
